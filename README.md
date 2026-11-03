@@ -68,7 +68,7 @@ cp .env.example .env
 |----------|:--------:|---------|-------------|
 | `INFOSET_API_KEY` | Yes | - | Infoset API key (sent as `X-API-Key` header) |
 | `INFOSET_BASE_URL` | No | `https://api.infoset.app` | API base URL |
-| `INFOSET_USER_ID` | No | Auto-detected | Override user ID for owner-based filtering |
+| `INFOSET_USER_ID` | No | - | Your Infoset user ID, the default owner for `infoset_list_tickets` and `infoset_get_ticket_stats`. API-key auth cannot resolve the caller (`/v1/users/me` answers 401), so without it those tools return every owner's tickets |
 
 ---
 

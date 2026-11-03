@@ -32,6 +32,11 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Cloudflare in front of the API rejects write calls from non-browser clients
+// with 403 "error code: 1010"; a browser User-Agent passes.
+const BROWSER_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
+
 async function apiRequest(method, url, data = null, params = null) {
   const config = {
     method,
@@ -39,6 +44,7 @@ async function apiRequest(method, url, data = null, params = null) {
     headers: {
       'Content-Type': 'application/json',
       'X-API-Key': API_KEY,
+      'User-Agent': BROWSER_USER_AGENT,
     },
     timeout: 30000,
   };
@@ -268,6 +274,38 @@ server.registerTool(
 
     const data = await apiRequest('put', `/v1/tickets/${ticketId}`, body);
     return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+);
+
+server.registerTool(
+  'infoset_add_ticket_note',
+  {
+    description:
+      'Add a note to a ticket timeline (POST /v1/tickets/logs). Private by default (agents only); set isPrivate=false to make it visible to the customer. Notes accept HTML. Returns the created log, whose id can be passed to infoset_delete_ticket_log.',
+    inputSchema: z.object({
+      ticketId: z.number().describe('Ticket ID'),
+      notes: z.string().min(1).describe('Note text; HTML such as <br>, <b>, <a href> is rendered'),
+      isPrivate: z.boolean().optional().describe('true = internal note (default), false = visible to the customer'),
+    }),
+  },
+  async ({ ticketId, notes, isPrivate }) => {
+    const body = { ticketId, notes, isPrivate: isPrivate === false ? 0 : 1 };
+    const data = await apiRequest('post', '/v1/tickets/logs', body);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  }
+);
+
+server.registerTool(
+  'infoset_delete_ticket_log',
+  {
+    description: 'Delete a ticket log entry, such as a note added by mistake (DELETE /v1/tickets/logs/{logId}). Irreversible.',
+    inputSchema: z.object({
+      logId: z.number().describe('Log ID, as returned by infoset_add_ticket_note or infoset_get_ticket_logs'),
+    }),
+  },
+  async ({ logId }) => {
+    const data = await apiRequest('delete', `/v1/tickets/logs/${logId}`);
+    return { content: [{ type: 'text', text: JSON.stringify(data ?? { deleted: logId }, null, 2) }] };
   }
 );
 

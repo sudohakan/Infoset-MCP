@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-11-03
+
+### Added
+- `infoset_add_ticket_note`: adds a private or customer-visible note to a ticket (`POST /v1/tickets/logs`)
+- `infoset_delete_ticket_log`: deletes a ticket log entry (`DELETE /v1/tickets/logs/{logId}`)
+
+### Fixed
+- Every request sends a browser `User-Agent`; Cloudflare rejected write calls from the default client signature with 403 `error code: 1010`
+- `infoset_search_tickets` searches by subject, since the API ignores the `Search` parameter
+- Dependency audit findings closed
+
 ## [2.2.1] - 2026-04-12
 
 ### Changed

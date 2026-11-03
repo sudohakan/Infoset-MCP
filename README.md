@@ -21,7 +21,7 @@ Tickets &middot; Contacts &middot; Companies &middot; SLA &middot; Email Threads
 
 ## What it does
 
-AI assistants need structured access to helpdesk data. REST APIs require authentication boilerplate, pagination handling, and rate limit management on every call. infoset-mcp wraps the [Infoset](https://infoset.app) CRM API into **16 MCP tools** with built-in retry logic, rate limit protection, and batch operations, so your AI assistant can query tickets, contacts, and companies without dealing with HTTP plumbing.
+AI assistants need structured access to helpdesk data. REST APIs require authentication boilerplate, pagination handling, and rate limit management on every call. infoset-mcp wraps the [Infoset](https://infoset.app) CRM API into **18 MCP tools** with built-in retry logic, rate limit protection, and batch operations, so your AI assistant can query tickets, contacts, and companies without dealing with HTTP plumbing.
 
 - **API key auth**: stateless `X-API-Key` header, no token refresh, no login flow
 - **Rate limit aware**: monitors `x-ratelimit-remaining` headers, auto-pauses before hitting limits
@@ -74,7 +74,7 @@ cp .env.example .env
 
 ## Usage
 
-### Ticket Operations (7 tools)
+### Ticket Operations (9 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -84,6 +84,8 @@ cp .env.example .env
 | `infoset_create_ticket` | Create a new ticket with subject, contact, priority, content |
 | `infoset_update_ticket` | Update ticket status, priority, owners, subject, stage, pipeline |
 | `infoset_get_ticket_logs` | Get activity logs for a ticket |
+| `infoset_add_ticket_note` | Add a note to the ticket timeline, private by default, HTML allowed |
+| `infoset_delete_ticket_log` | Delete a log entry, such as a note added by mistake |
 | `infoset_get_ticket_stats` | Get ticket count breakdown by status (Open/Pending/Resolved/Closed) |
 
 ### Contact and Company (3 tools)

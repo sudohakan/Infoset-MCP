@@ -90,9 +90,9 @@ describe('mcp-server.mjs', () => {
       expect(lastCall.headers['X-API-Key']).toBe('test-api-key-123');
     });
 
-    test('all 16 tools are registered and callable', () => {
+    test('all 18 tools are registered and callable', () => {
       const registeredTools = Object.keys(toolHandlers);
-      expect(registeredTools).toHaveLength(16);
+      expect(registeredTools).toHaveLength(18);
     });
 
     test('each tool handler is a function', () => {
@@ -114,6 +114,8 @@ describe('mcp-server.mjs', () => {
       'infoset_search_tickets',
       'infoset_create_ticket',
       'infoset_update_ticket',
+      'infoset_add_ticket_note',
+      'infoset_delete_ticket_log',
       'infoset_list_contacts',
       'infoset_get_company',
       'infoset_get_ticket_stats',
@@ -248,6 +250,32 @@ describe('mcp-server.mjs', () => {
       const lastCall = mockAxios.mock.calls[mockAxios.mock.calls.length - 1][0];
       expect(lastCall.method).toBe('put');
       expect(lastCall.url).toContain('/v1/tickets/1');
+    });
+
+    test('infoset_add_ticket_note posts a private note by default', async () => {
+      mockApiResponse({ id: 77, ticketId: 5, isPrivate: 1 });
+      const result = await toolHandlers.infoset_add_ticket_note({ ticketId: 5, notes: 'Not' });
+      const lastCall = mockAxios.mock.calls[mockAxios.mock.calls.length - 1][0];
+      expect(lastCall.method).toBe('post');
+      expect(lastCall.url).toBe('https://test.infoset.app/v1/tickets/logs');
+      expect(lastCall.data).toEqual({ ticketId: 5, notes: 'Not', isPrivate: 1 });
+      expect(lastCall.headers['User-Agent']).toMatch(/^Mozilla\//);
+      expect(JSON.parse(result.content[0].text).id).toBe(77);
+    });
+
+    test('infoset_add_ticket_note sends isPrivate 0 for a public note', async () => {
+      mockApiResponse({ id: 78 });
+      await toolHandlers.infoset_add_ticket_note({ ticketId: 5, notes: 'Açık', isPrivate: false });
+      const lastCall = mockAxios.mock.calls[mockAxios.mock.calls.length - 1][0];
+      expect(lastCall.data.isPrivate).toBe(0);
+    });
+
+    test('infoset_delete_ticket_log sends DELETE', async () => {
+      mockApiResponse('');
+      await toolHandlers.infoset_delete_ticket_log({ logId: 77 });
+      const lastCall = mockAxios.mock.calls[mockAxios.mock.calls.length - 1][0];
+      expect(lastCall.method).toBe('delete');
+      expect(lastCall.url).toBe('https://test.infoset.app/v1/tickets/logs/77');
     });
 
     test('infoset_update_ticket sends only provided fields', async () => {

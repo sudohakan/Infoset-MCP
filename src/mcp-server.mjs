@@ -79,7 +79,7 @@ async function apiRequest(method, url, data = null, params = null) {
 
 const server = new McpServer({
   name: 'infoset',
-  version: '2.3.0',
+  version: '2.3.1',
 });
 
 server.registerTool(
@@ -88,7 +88,7 @@ server.registerTool(
     description: 'List Infoset tickets with optional filters and pagination',
     inputSchema: z.object({
       status: z.array(z.number()).optional().describe('Status filter array (1=Open, 2=Pending, 3=Resolved, 4=Closed)'),
-      ownerIds: z.string().optional().describe('Comma-separated owner user IDs. Defaults to logged-in user.'),
+      ownerIds: z.string().optional().describe('One owner user ID. The API applies only the first ID of a comma-separated list. Defaults to INFOSET_USER_ID.'),
       page: z.number().optional().describe('Page number (default: 1)'),
       itemsPerPage: z.number().optional().describe('Items per page (default: 100)'),
       fromUpdatedDate: z.string().optional().describe('ISO8601 date — only tickets updated after this date'),
@@ -352,7 +352,7 @@ server.registerTool(
   {
     description: 'Get ticket statistics dashboard (counts by status)',
     inputSchema: z.object({
-      ownerIds: z.string().optional().describe('Comma-separated owner IDs. Defaults to logged-in user.'),
+      ownerIds: z.string().optional().describe('One owner user ID. The API applies only the first ID of a comma-separated list. Defaults to INFOSET_USER_ID.'),
       fromDate: z.string().optional().describe('ISO8601 start date'),
       toDate: z.string().optional().describe('ISO8601 end date'),
     }),

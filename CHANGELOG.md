@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2026-11-03
+
+### Fixed
+- `ownerIds` on `infoset_list_tickets` and `infoset_get_ticket_stats` is documented as a single owner: the API applies only the first ID of a comma-separated list
+- README: `INFOSET_USER_ID` has to be set; API-key auth cannot detect the caller (`/v1/users/me` answers 401)
+
 ## [2.3.0] - 2026-11-03
 
 ### Added

@@ -5,11 +5,15 @@ import axios from 'axios';
 
 const BASE_URL = process.env.INFOSET_BASE_URL || 'https://api.infoset.app';
 const API_KEY = process.env.INFOSET_API_KEY;
+// A user session token (JWT, ~30 days) authenticates with Bearer while the account API key is revoked or not reissued
+const JWT = process.env.INFOSET_JWT;
 
-if (!API_KEY) {
-  console.error('Missing INFOSET_API_KEY env var');
+if (!API_KEY && !JWT) {
+  console.error('Missing INFOSET_API_KEY (or INFOSET_JWT) env var');
   process.exit(1);
 }
+
+const AUTH_HEADER = JWT ? { Authorization: `Bearer ${JWT}` } : { 'X-API-Key': API_KEY };
 
 let userId = process.env.INFOSET_USER_ID ? parseInt(process.env.INFOSET_USER_ID, 10) : null;
 
@@ -17,7 +21,7 @@ async function fetchUserId() {
   if (userId) return userId;
   try {
     const res = await axios.get(`${BASE_URL}/v1/users/me`, {
-      headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+      headers: { 'Content-Type': 'application/json', ...AUTH_HEADER },
       timeout: 30000,
     });
     userId = res.data.id || res.data.Id || res.data.userId;
@@ -43,7 +47,7 @@ async function apiRequest(method, url, data = null, params = null) {
     url: `${BASE_URL}${url}`,
     headers: {
       'Content-Type': 'application/json',
-      'X-API-Key': API_KEY,
+      ...AUTH_HEADER,
       'User-Agent': BROWSER_USER_AGENT,
     },
     timeout: 30000,
